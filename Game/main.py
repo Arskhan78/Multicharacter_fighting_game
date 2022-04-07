@@ -1,6 +1,4 @@
 import os
-from re import I
-from xmlrpc.client import boolean
 from numpy import block
 import pygame
 import ui
