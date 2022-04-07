@@ -147,13 +147,12 @@ class SkillAttack:
     """
     Character Skill "Ground Slam"
     """
-    def slam(self, grav, otherchar, distance, area):
+    def slam(self, grav, otherchar:CharacterInstance, distance, area):
         y -= grav
         leftside = CharacterInstance.currentX - area
         rightside = CharacterInstance.currentX + area
         if "Character interacts with floor":
-            distance = CharacterInstance.currentX - otherchar.CharacterInstance.currentX
-            if distance in range(leftside, rightside):
+            if otherchar.currentX in range(leftside, rightside):
                 "Interact function (Character is hit)"
 
 
