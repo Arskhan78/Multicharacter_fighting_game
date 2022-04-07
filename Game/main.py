@@ -105,9 +105,9 @@ class BasicAttack:
         self.cantatk: bool = cantatk
         
 
-    def attack(self, reach, chareachx, chareachy, otherchar:CharacterInstance, cantatk):
-        if cantatk == False:
-            pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, reach, reach))
+    def attack(self):
+        if self.cantatk == False:
+            pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, self.reach, self.reach))
         #if cantatk = True then pass the fucntion as character on cooldown
         else:
             pass
@@ -116,24 +116,24 @@ class BasicAttack:
     """
     Function to tell computer that character attacked
     """
-    def attacked(self, ifatk, cantatk):
-        if cantatk == False:
-            ifatk == True
+    def attacked(self):
+        if self.cantatk == False:
+            self.ifatk == True
         else:
-            ifatk == False
+            self.ifatk == False
 
     
     """
     Function representing the cooldown before a characters next attack
     """
-    def cooldown(self, ifatk, cd, cantatk):
-        if ifatk == True:
+    def cooldown(self):
+        if self.ifatk == True:
             i = 0
-            while i < cd:
+            while i < self.cd:
                 i += 1
-                cantatk == True
+                self.cantatk == True
             
-            cantatk == False
+            self.cantatk == False
 
 
 
@@ -154,36 +154,36 @@ class SkillAttack:
     """
     Character Skill "Dash Left"
     """
-    def dashleft(self, dis, dsp):
-        travelled = CharacterInstance.currentX - dis
+    def dashleft(self,):
+        travelled = CharacterInstance.currentX - self.dis
         while CharacterInstance.currentX > travelled:
-            CharacterInstance.currentX -= dsp
+            CharacterInstance.currentX -= self.dsp
 
     """
     Character Skill (Part 2) "Dash Right"
     """
-    def dashright(self, dis, dsp):
-        travelled = CharacterInstance.currentX + dis
+    def dashright(self):
+        travelled = CharacterInstance.currentX + self.dis
         while CharacterInstance.currentX < travelled:
-            CharacterInstance.currentX += dsp
+            CharacterInstance.currentX += self.dsp
 
     """
     Character Skill "Ground Slam"
     """
-    def slam(self, useskill, grav, otherchar:CharacterInstance, distance, area, height, scd):
-        if useskill == False:
+    def slam(self, otherchar:CharacterInstance):
+        if self.useskill == False:
             while CharacterInstance.currentY >= "tile":
-                CharacterInstance.currentY -= grav
-            leftside = CharacterInstance.currentX - area
-            rightside = CharacterInstance.currentX + area
-            up = CharacterInstance.currentY + height
+                CharacterInstance.currentY -= self.grav
+            leftside = CharacterInstance.currentX - self.area
+            rightside = CharacterInstance.currentX + self.area
+            up = CharacterInstance.currentY + self.height
             if "Character interacts with floor":
                 if otherchar.currentX in range(leftside, rightside) and otherchar.currentY in range(up):
                     otherchar.character.hp -= CharacterStats.atk
                     l = 0
-                    while l < scd:
+                    while l < self.scd:
                         l += 1
-                        useskill == True
+                        self.useskill == True
                 #else func determines that if the skill is "True" then it will skip and no action will occur
                 else:
                     pass
