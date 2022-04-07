@@ -1,5 +1,4 @@
 import os
-from numpy import block
 import pygame
 import ui
 from typing import List, Tuple, Dict, Optional
@@ -72,22 +71,23 @@ class CharacterStats:
     """
     The base stats, attacks, etc of a character
     """
-    def __init__(self, name, hp, atk, speed, hitbox): #stamina
+    def __init__(self, name, hp, atk, speed, hitbox, cd, ifatk, reach, cantatk, dis, grav, area, height, scd, useskill, dsp): #stamina
         self.name: str = name
         self.hp: int = hp
         self.atk: int = atk
         self.speed: int = speed
         self.hitbox: int = hitbox
+        self.attack = BasicAttack(cd, ifatk, reach, cantatk)
+        self.skill = SkillAttack(dis, grav, area, height, scd, useskill, dsp)
         #self.stamina: int = stamina
         pass
 
 
-"""
-(Global Function cause multiple classes use it) Function determining how much dmg character recieved from other and vise versa
-"""
-
-def givedmg(self, otherchar:CharacterInstance):
-    otherchar.character.hp -= self.atk
+    """
+    Function determining how much dmg character recieved from other and vise versa
+    """
+    def givedmg(self, otherchar:CharacterInstance):
+        otherchar.character.hp -= self.atk
 
     
 
@@ -105,14 +105,10 @@ class BasicAttack:
         self.cantatk: bool = cantatk
         
 
-    def attack(self, reach, chareach, otherchar:CharacterInstance, cantatk):
+    def attack(self, reach, chareachx, chareachy, otherchar:CharacterInstance, cantatk):
         if cantatk == False:
-            chareach = (self.currentX + reach, self.currentY + reach)
-            if otherchar.currentX and otherchar.currentY in range(chareach):
-                givedmg()
-            else:
-                pass
-        #if cantatk = True then pass the fucntion as character on cd
+            pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, reach, reach))
+        #if cantatk = True then pass the fucntion as character on cooldown
         else:
             pass
 
@@ -159,31 +155,31 @@ class SkillAttack:
     Character Skill "Dash Left"
     """
     def dashleft(self, dis, dsp):
-        travelled = self.currentX - dis
-        while self.currentX > travelled:
-            self.currentX -= dsp
+        travelled = CharacterInstance.currentX - dis
+        while CharacterInstance.currentX > travelled:
+            CharacterInstance.currentX -= dsp
 
     """
     Character Skill (Part 2) "Dash Right"
     """
     def dashright(self, dis, dsp):
-        travelled = self.currentX + dis
-        while self.currentX < travelled:
-            self.currentX += dsp
+        travelled = CharacterInstance.currentX + dis
+        while CharacterInstance.currentX < travelled:
+            CharacterInstance.currentX += dsp
 
     """
     Character Skill "Ground Slam"
     """
     def slam(self, useskill, grav, otherchar:CharacterInstance, distance, area, height, scd):
         if useskill == False:
-            while self.currentY >= "tile":
-                self.currentY -= grav
-            leftside = self.currentX - area
-            rightside = self.currentX + area
-            up = self.currentY + height
+            while CharacterInstance.currentY >= "tile":
+                CharacterInstance.currentY -= grav
+            leftside = CharacterInstance.currentX - area
+            rightside = CharacterInstance.currentX + area
+            up = CharacterInstance.currentY + height
             if "Character interacts with floor":
                 if otherchar.currentX in range(leftside, rightside) and otherchar.currentY in range(up):
-                    givedmg()
+                    otherchar.character.hp -= CharacterStats.atk
                     l = 0
                     while l < scd:
                         l += 1
@@ -209,6 +205,8 @@ def main():
         with open(f"characters/{dir}", 'r') as f:
             char = json.load(f)
             characters[char['name']] = CharacterStats(**char)
+
+
     print(characters)
 
     # temp for testing
