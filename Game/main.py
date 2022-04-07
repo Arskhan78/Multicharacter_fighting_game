@@ -244,7 +244,6 @@ def main():
         pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(sim.character2.currentX/10*blockWidth, sim.character2.currentY/10*blockWidth, sim.character2.character.hitbox[0]/10*blockWidth, sim.character2.character.hitbox[1]/10*blockWidth))
         # --- Go ahead and update the screen with what we've drawn.
         pygame.display.flip()
-    
         # --- Limit to 60 frames per second
         pygame.time.Clock().tick(60)
 

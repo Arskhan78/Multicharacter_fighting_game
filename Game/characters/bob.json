@@ -6,7 +6,7 @@
     "hitbox": [10, 20],
     "cd": 30,
     "ifatk": false,
-    "reach": 5,
+    "reach": [5, 10],
     "cantatk": false,
     "dis": 5,
     "grav": 10,
