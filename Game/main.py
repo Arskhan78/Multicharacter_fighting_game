@@ -85,8 +85,6 @@ class CharacterStats:
 """
 (Global Function cause multiple classes use it) Function determining how much dmg character recieved from other and vise versa
 """
-def recievedmg(self, otherchar:CharacterInstance):
-    self.hp -= otherchar.character.atk
 
 def givedmg(self, otherchar:CharacterInstance):
     otherchar.character.hp -= self.atk
@@ -107,10 +105,14 @@ class BasicAttack:
         self.cantatk: bool = cantatk
         
 
-    def attack(self, reach, chareach, otherchar:CharacterInstance):
-        chareach = (self.currentX + reach, self.currentY + reach)
-        if otherchar.currentX and otherchar.currentY in range(chareach):
-            givedmg()
+    def attack(self, reach, chareach, otherchar:CharacterInstance, cantatk):
+        if cantatk == False:
+            chareach = (self.currentX + reach, self.currentY + reach)
+            if otherchar.currentX and otherchar.currentY in range(chareach):
+                givedmg()
+            else:
+                pass
+        #if cantatk = True then pass the fucntion as character on cd
         else:
             pass
 
@@ -143,33 +145,39 @@ class SkillAttack:
     """
     Represents a character's skill attack
     """
-    def __init__(self, dis, grav, area, height, scd, useskill):
+    def __init__(self, dis, grav, area, height, scd, useskill, dsp):
         self.dis: int = dis
         self.grav: int = grav
         self.area: int = area
         self.height: int = height
         self.scd: int = scd
         self.useskill: bool = useskill
+        self.dsp: int = dsp
 
 
     """
     Character Skill "Dash Left"
     """
-    def dashleft(self, dis):
-        self.currentX -= dis
+    def dashleft(self, dis, dsp):
+        travelled = self.currentX - dis
+        while self.currentX > travelled:
+            self.currentX -= dsp
 
     """
     Character Skill (Part 2) "Dash Right"
     """
-    def dashright(self, dis):
-        self.currentX += dis
+    def dashright(self, dis, dsp):
+        travelled = self.currentX + dis
+        while self.currentX < travelled:
+            self.currentX += dsp
 
     """
     Character Skill "Ground Slam"
     """
     def slam(self, useskill, grav, otherchar:CharacterInstance, distance, area, height, scd):
         if useskill == False:
-            y -= grav
+            while self.currentY >= "tile":
+                self.currentY -= grav
             leftside = self.currentX - area
             rightside = self.currentX + area
             up = self.currentY + height

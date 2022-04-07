@@ -13,5 +13,6 @@
     "area": 20,
     "height": 10,
     "scd": 40,
-    "useskill": false
+    "useskill": false,
+    "dsp": 5
 }
