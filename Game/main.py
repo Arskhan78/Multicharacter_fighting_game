@@ -1,4 +1,5 @@
 import os
+from re import I
 from xmlrpc.client import boolean
 from numpy import block
 import pygame
@@ -73,31 +74,48 @@ class CharacterStats:
     """
     The base stats, attacks, etc of a character
     """
-    def __init__(self, name, hp, atk, speed, hitbox):
+    def __init__(self, name, hp, atk, speed, hitbox): #stamina
         self.name: str = name
         self.hp: int = hp
         self.atk: int = atk
         self.speed: int = speed
         self.hitbox: int = hitbox
+        #self.stamina: int = stamina
         pass
 
-    """
-    Function determining how much dmg character recieved from other
-    """
-    def recievedmg(self, otherchar:CharacterInstance):
-        self.hp -= otherchar.character.atk
-        pass
+
+"""
+(Global Function cause multiple classes use it) Function determining how much dmg character recieved from other and vise versa
+"""
+def recievedmg(self, otherchar:CharacterInstance):
+    self.hp -= otherchar.character.atk
+
+def givedmg(self, otherchar:CharacterInstance):
+    otherchar.character.hp -= self.atk
+
+    
+
+    
+
 
 class BasicAttack:
     """
     Represents a character's basic attack
     """
-    def __init__(self, cd, ifatk, range, cantatk):
+    def __init__(self, cd, ifatk, reach, cantatk):
         self.cd: int = cd
         self.ifatk: bool = ifatk
-        self.range: int = range
+        self.reach: int = reach
         self.cantatk: bool = cantatk
-        pass
+        
+
+    def attack(self, reach, chareach, otherchar:CharacterInstance):
+        chareach = (self.currentX + reach, self.currentY + reach)
+        if otherchar.currentX and otherchar.currentY in range(chareach):
+            givedmg()
+        else:
+            pass
+
 
     """
     Function to tell computer that character attacked
@@ -114,8 +132,9 @@ class BasicAttack:
     """
     def cooldown(self, ifatk, cd, cantatk):
         if ifatk == True:
-            while cd < 30:
-                cd += 1
+            i = 0
+            while i < cd:
+                i += 1
                 cantatk == True
             
             cantatk == False
@@ -126,39 +145,47 @@ class SkillAttack:
     """
     Represents a character's skill attack
     """
-    def __init__(self, dis, grav, area):
+    def __init__(self, dis, grav, area, height, scd, useskill):
         self.dis: int = dis
         self.grav: int = grav
         self.area: int = area
-        pass
+        self.height: int = height
+        self.scd: int = scd
+        self.useskill: bool = useskill
+
 
     """
     Character Skill "Dash Left"
     """
     def dashleft(self, dis):
-        CharacterInstance.currentX -= dis
+        self.currentX -= dis
 
     """
     Character Skill (Part 2) "Dash Right"
     """
     def dashright(self, dis):
-        CharacterInstance.currentX += dis
+        self.currentX += dis
 
     """
     Character Skill "Ground Slam"
     """
-    def slam(self, grav, otherchar:CharacterInstance, distance, area):
-        y -= grav
-        leftside = CharacterInstance.currentX - area
-        rightside = CharacterInstance.currentX + area
-        if "Character interacts with floor":
-            if otherchar.currentX in range(leftside, rightside):
-                "Interact function (Character is hit)"
-
-
-        pass
-
-        
+    def slam(self, useskill, grav, otherchar:CharacterInstance, distance, area, height, scd):
+        if useskill == False:
+            y -= grav
+            leftside = self.currentX - area
+            rightside = self.currentX + area
+            up = self.currentY + height
+            if "Character interacts with floor":
+                if otherchar.currentX in range(leftside, rightside) and otherchar.currentY in range(up):
+                    givedmg()
+                    l = 0
+                    while l < scd:
+                        l += 1
+                        useskill == True
+                #else func determines that if the skill is "True" then it will skip and no action will occur
+                else:
+                    pass
+     
 
 def main():
 

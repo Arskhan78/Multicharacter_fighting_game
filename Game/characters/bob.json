@@ -4,7 +4,14 @@
     "atk": 1,
     "speed": 69,
     "hitbox": [10, 20],
+    "cd": 30,
+    "ifatk": false,
+    "reach": 5,
+    "cantatk": false,
     "dis": 5,
     "grav": 10,
-    "area": 20
+    "area": 20,
+    "height": 10,
+    "scd": 40,
+    "useskill": false
 }
