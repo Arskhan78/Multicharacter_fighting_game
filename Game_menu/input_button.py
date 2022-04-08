@@ -3,7 +3,7 @@ import pygame
 # Activate pygame libraries and initiate pygame functionality
 pygame.init()
 
-# Defining the RGB values of black 
+# Defining the RGB values of black
 Black = (0, 0, 0)
 
 # Identify the arial font and assign it to the variable arial
@@ -16,8 +16,16 @@ screen = pygame.display.set_mode((X, Y))
 
 # I got some help from this website for making an inputbox ckass. https://www.geeksforgeeks.org/how-to-create-a-text-input-box-with-pygame/
 # Inputbox class
+
+
 class InputBox:
-    def __init__(self, x: int, y: int, l: int, w: int, default_text: str) -> None:
+    def __init__(
+            self,
+            x: int,
+            y: int,
+            l: int,
+            w: int,
+            default_text: str) -> None:
         ''' Defines the parameters that will be used in the class
         Args:
             x = Position on the x-axis
@@ -40,10 +48,10 @@ class InputBox:
 
     def event_handling(self, event: pygame.event) -> None:
         """ handles all the events for the inputbox
-        
+
         Args:
             events: Right click and typing
-        
+
         Returns:
             None
 
@@ -61,13 +69,33 @@ class InputBox:
                 self.text = self.text[:-1]
             else:
                 self.text += event.unicode
-    
+
     def draw(self: None) -> None:
         """ Displays the inputbox
         """
         # Different conditions for when the box is being edited or not
-        pygame.draw.rect(screen, Black, pygame.Rect(self.x, self.y, self.l, self.w), 5)
+        pygame.draw.rect(
+            screen,
+            Black,
+            pygame.Rect(
+                self.x,
+                self.y,
+                self.l,
+                self.w),
+            5)
         if self.in_use or self.text:
-            screen.blit(arial.render(self.text, False, Black), (self.x + 15, self.y + 5))
+            screen.blit(
+                arial.render(
+                    self.text,
+                    False,
+                    Black),
+                (self.x + 15,
+                 self.y + 5))
         else:
-            screen.blit(arial.render(self.default_text, False, Black), (self.x + 15, self.y + 5))
+            screen.blit(
+                arial.render(
+                    self.default_text,
+                    False,
+                    Black),
+                (self.x + 15,
+                 self.y + 5))
