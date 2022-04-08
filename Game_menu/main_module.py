@@ -24,7 +24,7 @@ screen = pygame.display.set_mode((X, Y))
 # Set the caption of the game
 pygame.display.set_caption('Fighting Game')
 
-#load the image of the start button
+# load the image of the start button
 start_img = pygame.image.load('Start-Button-Vector-PNG.png').convert_alpha()
 
 # Identify the arial font and assign it to the variable arial
@@ -41,6 +41,8 @@ textRect = text.get_rect()
 textRect.center = (X - 400, Y - 430)
 
 # Main function
+
+
 def main() -> None:
     ''' Incorporates the inputBox and clickButton classes while drawing a window
     Returns:
@@ -51,7 +53,7 @@ def main() -> None:
     username_2 = InputBox(275, 175, 250, 40, 'Username_2')
     username = InputBox(275, 115, 250, 40, 'Username_1')
     number_of_lives = InputBox(275, 235, 250, 40, 'Number of Lives')
-    
+
     # Main loop
     while True:
         # Colour of the screen acording to RGB values
@@ -77,7 +79,8 @@ def main() -> None:
         number_of_lives.draw()
         username_2.draw()
 
-        # Will print the text inside each inputbox once the start button is clicked
+        # Will print the text inside each inputbox once the start button is
+        # clicked
         if button1.clicked:
             print(username.text)
             print(username_2.text)
@@ -86,18 +89,18 @@ def main() -> None:
 
         button1.clicked = False
 
-
-
         # Updates the screen with the given parameters
         pygame.display.flip()
-    
+
         # Limits FPS to 60
         pygame.time.Clock().tick(60)
 
         # Draws the surface object to the screen
         pygame.display.update()
 
-# WIll run the main function if it is located on the same file as the function main
+# WIll run the main function if it is located on the same file as the
+# function main
+
 
 if __name__ == "__main__":
     main()
