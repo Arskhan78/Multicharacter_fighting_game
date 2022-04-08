@@ -3,6 +3,7 @@ import pygame
 import ui
 from typing import List, Tuple, Dict, Optional
 import json
+from pygame.locals import K_m, K_r, K_t, K_l, K_f, K_a, K_d, K_RIGHT, K_LEFT, K_PERIOD, KEYDOWN 
 pygame.init()
 
 
@@ -107,7 +108,11 @@ class BasicAttack:
 
     def attack(self):
         if self.cantatk == False:
-            pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, self.reach, self.reach))
+            i = 0
+            while i < 2:
+                pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, self.reach, self.reach))
+            #reseting the screen so atk does not stay on screen    
+            pygame.draw.rect(screen, (0, 0, 200), (CharacterInstance.currentX, CharacterInstance.currentY, 0, 0))
         #if cantatk = True then pass the fucntion as character on cooldown
         else:
             pass
@@ -174,7 +179,7 @@ class SkillAttack:
         if self.useskill == False:
             while CharacterInstance.currentY >= "tile":
                 CharacterInstance.currentY -= self.grav
-            leftside = CharacterInstance.currentX - self.area
+            leftside = CharacterInstance.currentX - self.area - 2
             rightside = CharacterInstance.currentX + self.area
             up = CharacterInstance.currentY + self.height
             if "Character interacts with floor":
@@ -214,6 +219,14 @@ def main():
     player2 = PlayerInstance("asdd", 1, characters['bob'])
     sim = Simulation(maps['smash'], player1, player2)
 
+    #player basic attack
+    bplayer1 = BasicAttack()
+    bplayer2 = BasicAttack()
+
+    #player skill attack
+    splayer1 = SkillAttack()
+    splayer2 = SkillAttack()
+
     fpsCount = 0
 
     blockWidth = min(size[0]/len(sim.grid[0]), size[1]/len(sim.grid))
@@ -225,6 +238,46 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            elif event.type == KEYDOWN:
+                #Basic Attack
+                if event.key == K_r:
+                    bplayer1.attack()
+                    """
+                    if hitbox in range:
+                        bplayer2.givedmg()
+                    else:
+                        pass
+                    """
+                    bplayer1.attacked()
+                    bplayer1.cooldown()
+
+                elif event.key == K_m:
+                    bplayer2.attack()
+                    """
+                    if hitbox in range:
+                        bplayer2.givedmg()
+                    else:
+                        pass
+                    """
+                    bplayer2.attacked()
+                    bplayer2.cooldown()
+
+                #Abilties (Dash)
+                elif event.key == K_t and K_a:
+                    splayer1.dashleft()
+                elif event.key == K_t and K_d:
+                    splayer1.dashright()
+                elif event.key == K_PERIOD and K_LEFT:
+                    splayer2.dashleft()
+                elif event.key == K_PERIOD and K_RIGHT:
+                    splayer2.dashright()
+
+                #Abilties (Slam)
+                elif event.key == K_f:
+                    splayer1.slam()
+                elif event.key == K_l:
+                    splayer2.slam()
+            
 
         sim.tick() # <-- DO ALL PHYSICS PROCESSING IN HERE
 
