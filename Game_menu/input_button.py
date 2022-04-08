@@ -3,10 +3,8 @@ import pygame
 # Activate pygame libraries and initiate pygame functionality
 pygame.init()
 
-# Defining the RGB values of Black, Grey, and White
-BLACK = (0, 0, 0)
-GREY = (150, 150, 150)
-WHITE = (255, 255, 255)
+# Defining the RGB values of black 
+Black = (0, 0, 0)
 
 # Identify the arial font and assign it to the variable arial
 arial = pygame.font.SysFont('arial', 25)
@@ -16,45 +14,60 @@ X = 800
 Y = 500
 screen = pygame.display.set_mode((X, Y))
 
+# I got some help from this website for making an inputbox ckass. https://www.geeksforgeeks.org/how-to-create-a-text-input-box-with-pygame/
 # Inputbox class
-class inputBox:
-    def __init__(self, x, y, w, h, defaultText):
+class InputBox:
+    def __init__(self, x: int, y: int, l: int, w: int, default_text: str) -> None:
         ''' Defines the parameters that will be used in the class
+        Args:
+            x = Position on the x-axis
+            y = Position on the y-axis
+            l = length of the object
+            w = width of the object
+            defaultText = String assigned to show to the user
+
+        Returns:
+            None. Will display an input box with the given parameters
         '''
-        self.rect = pygame.Rect(x, y, w, h)
+        self.rect = pygame.Rect(x, y, l, w)
         self.x = x
         self.y = y
+        self.l = l
         self.w = w
-        self.h = h
-        self.defaultText = defaultText
-        self.inUse = False
+        self.default_text = default_text
+        self.in_use = False
         self.text = ''
 
-    def eventHandling(self, event: pygame.event):
+    def event_handling(self, event: pygame.event) -> None:
         """ handles all the events for the inputbox
         
         Args:
             events: Right click and typing
+        
+        Returns:
+            None
 
         """
+        # Determines whether the box has been clicked
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             if self.rect.collidepoint(pos):
-                self.inUse = True
+                self.in_use = True
             else:
-                self.inUse = False
-        elif event.type == pygame.KEYDOWN and self.inUse:
+                self.in_use = False
+        # Handles event for when the box is in use
+        elif event.type == pygame.KEYDOWN and self.in_use:
             if event.key == pygame.K_BACKSPACE:
                 self.text = self.text[:-1]
             else:
                 self.text += event.unicode
     
-    def draw(self):
+    def draw(self: None) -> None:
         """ Displays the inputbox
         """
         # Different conditions for when the box is being edited or not
-        pygame.draw.rect(screen, BLACK, pygame.Rect(self.x, self.y, self.w, self.h), 5)
-        if self.inUse or self.text:
-            screen.blit(arial.render(self.text, False, BLACK), (self.x + 15, self.y + 5))
+        pygame.draw.rect(screen, Black, pygame.Rect(self.x, self.y, self.l, self.w), 5)
+        if self.in_use or self.text:
+            screen.blit(arial.render(self.text, False, Black), (self.x + 15, self.y + 5))
         else:
-            screen.blit(arial.render(self.defaultText, False, BLACK), (self.x + 15, self.y + 5))
+            screen.blit(arial.render(self.default_text, False, Black), (self.x + 15, self.y + 5))
