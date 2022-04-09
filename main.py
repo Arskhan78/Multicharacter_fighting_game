@@ -29,7 +29,7 @@ class Simulation:
                 row.append(Blocks(k, i, blockTypes[gridInt[i][k]]))
             grid.append(row)
         self.grid: List[Blocks] = grid
-        print(grid)
+        self.blockWidth = 0
         pass
 
 
@@ -100,8 +100,28 @@ class CharacterPhysics():  #http://codingwithruss.com/pygame/platformer/player.h
         self.rect.y = y 
         self.vel_y = 0 
         self.jumped = False
+
+    def collision(self, grid, blockWidth):
+        corners = [[self.rect.top, self.rect.left], [self.rect.top, self.rect.right], [self.rect.bottom, self.rect.left], [self.rect.bottom, self.rect.right]]
+        cornerCollisions = [False, False, False, False]
+        for i in range(len(grid)):
+            for k in range(len(grid[0])):
+                if grid[i][k].type == 'solid':
+                    print(i, k)
+                    for c in range(len(corners)):
+                        if corners[c][0] >= i*blockWidth and corners[c][0] <= (i+1)*blockWidth and corners[c][1] >= k*blockWidth and corners[c][1] <= (k+1)*blockWidth:
+                            cornerCollisions[c] = True
+        ret = {
+            'left': cornerCollisions[0] and cornerCollisions[2],
+            'right': cornerCollisions[1] and cornerCollisions[3],
+            'bottom': cornerCollisions[2] or cornerCollisions[3],
+            'top': cornerCollisions[0] or cornerCollisions[1]
+        }
+        print(ret)
+        return ret
     
-    def bindings(self, left, right, up): 
+    def bindings(self, left, right, up, grid, bw): 
+        collisions = self.collision(grid, bw)
         speedx = 0
         speedy = 0
         speed = 10
@@ -124,9 +144,7 @@ class CharacterPhysics():  #http://codingwithruss.com/pygame/platformer/player.h
         if keys[right] and self.jumped == True :
             speedx -= 5
         # checking if jumped
-        if keys[up] and self.rect.bottom == 675:
-            self.jumped = False 
-        if  self.rect.bottom == 675:
+        if  collisions['bottom']:
             self.jumped = False
        
         #gravity 
@@ -135,12 +153,21 @@ class CharacterPhysics():  #http://codingwithruss.com/pygame/platformer/player.h
             self.vel_y = 15    
 
         speedy += self.vel_y
+
+        if collisions['bottom']:
+            speedy = min(0, speedy)
+
+        if collisions['right']:
+            speedx = min(0, speedx)
+        
+        if collisions['left']:
+            speedx = max(0, speedx)
+
+        if collisions['top']:
+            speedy = max(0, speedy)
+
         self.rect.x += speedx
         self.rect.y += speedy
-
-        if self.rect.bottom > 675:
-            self.rect.bottom = 675
-            speedy = 0
 
         #collisions 
         # for tile in sim.grid:
@@ -187,6 +214,8 @@ def main():
     blockWidth = min(size[0]/len(sim.grid[0]), size[1]/len(sim.grid))
     print(blockWidth)
 
+    sim.blockWidth = blockWidth
+
     while True:
         screen.fill((255, 255, 255))
 
@@ -207,9 +236,9 @@ def main():
      
         
         characterPhysics1.draw()
-        characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP)
+        characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, sim.grid, sim.blockWidth)
         characterPhysics2.draw()
-        characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w)
+        characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w, sim.grid, sim.blockWidth)
        
 
         pygame.display.update()
