@@ -4,6 +4,7 @@ import ui
 from typing import List, Tuple, Dict, Optional
 import json
 from pygame.locals import K_m, K_r, K_t, K_l, K_f, K_a, K_d, K_RIGHT, K_LEFT, K_PERIOD, KEYDOWN 
+import random 
 pygame.init()
 
 
@@ -68,6 +69,12 @@ class CharacterInstance:
         self.currentY: int = y
 
 
+
+
+
+
+
+
 class CharacterStats:
     """
     The base stats, attacks, etc of a character
@@ -81,12 +88,7 @@ class CharacterStats:
         #self.stamina: int = stamina
 
 
-
-    
-
-    
-
-
+ 
 class BasicAttack:
     """
     Represents a character's basic attack
@@ -98,80 +100,66 @@ class BasicAttack:
         self.reachy: int = reachy
         self.cantatk: bool = cantatk
 
-    """
-    Function determining how much dmg character recieved from other and vise versa
-    Returns the other character hp - atk of the current character who called the function
-    """
-    def givedmg(self, otherchar:CharacterInstance):
-        otherchar.character.hp -= CharacterStats.atk
-        # Ex: Enemy 100 Hp - Character 20 Atk : Enemy 80 Hp left
 
-    """
-    attack right function
-    draws a rectangle to show the attack's hitbox (to the right)
-    """
-    def attackright(self):
-        if self.cantatk == False:
-            i = 0
+
+    def abindings(self, left, right, attack, otherchar: CharacterInstance):
+        keys = pygame.key.get_pressed()
+        i = 0
+
+        #left attack
+        if keys[left] and keys[attack] and self.cantatk == False:
             posx = CharacterPhysics.rectx
             posy = CharacterPhysics.recty
-            chareach = (CharacterPhysics.rectx + self.reachx + 10, CharacterPhysics.recty - self.reachy + 5)
+            self.chareachx = CharacterPhysics.rectx + self.reachx - 10
+            self.chareachy = CharacterPhysics.recty - self.reachy + 5
             while i < 2:
                 i += 1
                 pygame.draw.rect(screen, (0, 0, 200), (CharacterPhysics.rectx + 10, CharacterPhysics.recty + 5, self.reachx, self.reachy))
             #reseting the screen so atk does not stay on screen    
             pygame.draw.rect(screen, (0, 0, 200), ( posx, posy, 0, 0))
-        #if cantatk = True then pass the fucntion as character on cooldown
-        else:
-            pass
-    
-    """
-    attack left function
-    draws a rectangle to show the attack's hitbox (to the left)
-    """
-    def attackleft(self):
-        if self.cantatk == False:
-            i = 0
-            posx = CharacterPhysics.rectx
-            posy = CharacterPhysics.recty
-            self.chareachx = CharacterPhysics.rectx - self.reachx - 10
-            self.chareachy = CharacterPhysics.recty - self.reachy + 5
-            while i < 2:
-                i += 1
-                pygame.draw.rect(screen, (0, 0, 200), (CharacterPhysics.rectx - 10, CharacterPhysics.recty + 5, self.reachx, self.reachy))
-            #reseting the screen so atk does not stay on screen    
-            pygame.draw.rect(screen, (0, 0, 200), ( posx, posy, 0, 0))
+            if CharacterPhysics.rect.x <= self.chareachx and self.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
+                otherchar.character.hp -= CharacterStats.atk
+            
         #if cantatk = True then pass the function as character on cooldown
         else:
             pass
 
-    """
-    Function to tell computer that character attacked
-    returns if attack as "true"
-    """
-    def attacked(self):
-        if self.cantatk == False:
-            self.ifatk == True
-        else:
-            self.ifatk == False
-
-    
-    """
-    Function representing the cooldown before a characters next attack
-    returns cantatk as "true" if ifatk is "true"
-    """
-    def cooldown(self):
-        if self.ifatk == True:
-            i = 0
-            while i < self.cd:
+        #right attack
+        if keys[right] and keys[attack] and self.cantatk == False:
+            posx = CharacterPhysics.rectx
+            posy = CharacterPhysics.recty
+            self.chareachx = CharacterPhysics.rectx + self.reachx + 10
+            self.chareachy = CharacterPhysics.recty - self.reachy + 5
+            while i < 2:
                 i += 1
-                self.cantatk == True
+                pygame.draw.rect(screen, (0, 0, 200), (CharacterPhysics.rectx + 10, CharacterPhysics.recty + 5, self.reachx, self.reachy))
+            #reseting the screen so atk does not stay on screen    
+            pygame.draw.rect(screen, (0, 0, 200), ( posx, posy, 0, 0))
+            if CharacterPhysics.rect.x <= self.chareachx and self.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
+                otherchar.character.hp -= CharacterStats.atk
             
+        #if cantatk = True then pass the function as character on cooldown
+        else:
+            pass
+
+        #cooldown
+        if keys[attack]:
+            # if can atk then will atk
+            if self.cantatk == False:
+                self.ifatk == True
+            else:
+                self.ifatk == False
+            # cooldown for atk
+            if self.ifatk == True:
+                while i < self.cd:
+                    i += 1
+                self.cantatk == True       
             self.cantatk == False
         else:
             pass
 
-
+basicAttack1 = BasicAttack(30, False, 5, 10, False)
+basicAttack2 = BasicAttack(30, False, 5, 10, False)
 
 class SkillAttack:
     """
@@ -186,86 +174,84 @@ class SkillAttack:
         self.useskill: bool = useskill
         self.dsp: int = dsp
 
-
-    """
-    Character Skill "Dash Left"
-    """
-    def dashleft(self,):
-        if self.useskill == False:
+    def sbindings(self, left, right, dash, slam, grid, bw, otherchar:CharacterInstance):
+        collisions = CharacterPhysics.collision(grid, bw)
+        keys = pygame.key.get_pressed()
+        l = 0
+        floor = False
+        # dash left
+        if keys[dash] and keys[left] and self.useskill == False:
             travelled = CharacterPhysics.rectx - self.dis
             while CharacterPhysics.rectx > travelled:
-                #character's x pos moving towards the left until it reaches the travelled distance
                 CharacterPhysics.rectx -= self.dsp
-                l = 0
-                while l < self.scd:
-                    l += 1
-                    self.useskill == True
-                    #else func determines that if the skill is "True" then it will skip and no action will occur
-                else:
-                    return f"Skill is on cooldown right now for {l} more seconds"
-        else:
-            pass
+            while l < self.scd:
+                l += 1
+                self.useskill == True
 
-    """
-    Character Skill (Part 2) "Dash Right"
-    """
-    def dashright(self):
-        if self.useskill == False:
-            travelled = CharacterPhysics.rectx + self.dis
+        # dash right
+        if keys[dash] and keys[right] and self.useskill == False:
+            travelled = CharacterPhysics.rectx + self.dis + 10
             while CharacterPhysics.rectx < travelled:
-                #character's x pos moving towards the right until it reaches the travelled distance
                 CharacterPhysics.rectx += self.dsp
-                l = 0
-                while l < self.scd:
-                    l += 1
-                    self.useskill == True
-                    #else func determines that if the skill is "True" then it will skip and no action will occur
-                else:
-                    pass
-        else:
-            return f"Skill is on cooldown right now for {l} more seconds"
+            while l < self.scd:
+                l += 1
+                self.useskill == True
 
-    """
-    Character Skill "Ground Slam"
-    """
-    def slam(self, otherchar:CharacterInstance):
-        if self.useskill == False:
-            while CharacterPhysics.recty >= "tile":
-                CharacterPhysics.recty -= self.grav
-            leftside = CharacterPhysics.rectx - self.area - 2
-            rightside = CharacterPhysics.rectx + self.area
+        # slam
+        if keys[slam] and self.useskill == False:
+            while floor == False:
+                CharacterPhysics.recty += self.grav
+            leftside = CharacterPhysics.rectx - self.area
+            rightside = CharacterPhysics.rectx + self.area + 5
             up = CharacterPhysics.recty - self.height - 5
-            if "Character interacts with floor":
-                if otherchar.currentX in range(leftside, rightside) and otherchar.currentY in range(up):
+            if collisions['bottom']:
+                CharacterPhysics.recty = min(0, CharacterPhysics.recty)
+                if CharacterPhysics.rectx in range(leftside, rightside) and CharacterPhysics.recty in range(up):
                     otherchar.character.hp -= CharacterStats.atk
                     
                 else:
                     pass
-            l = 0
             while l < self.scd:
                 l += 1
                 self.useskill == True
-                #else func determines that if the skill is "True" then it will skip and no action will occur
-            else:
-                return f"Skill is on cooldown right now for {l} more seconds"
+            
+skillAttack1 = SkillAttack(5, 10, 20, 10, 40, False, 5)
+skillAttack2 = SkillAttack(5, 10, 20, 10, 40, False, 5)
 
-class CharacterPhysics():
+class CharacterPhysics:
     """
     Charecter movement and tile collision 
     """
     def init(self, x, y):
-        self.images_right = []
-        self.index = 0 
-        self.counter = 0
         player_surf = pygame.image.load(f'player_stance1.png').convert_alpha()
         self.image = pygame.transform.scale(player_surf, (50, 100))
         self.rect = self.image.get_rect()
-        self.rectx = x 
-        self.recty = y 
+        self.rectx: int = x 
+        self.recty: int = y 
         self.vel_y = 0 
         self.jumped = False
+    
+    def collision(self, grid, blockWidth):
+        corners = [[self.rect.top, self.rect.left], [self.rect.top, self.rect.right], [self.rect.bottom, self.rect.left], [self.rect.bottom, self.rect.right]]
+        cornerCollisions = [False, False, False, False]
+        for i in range(len(grid)):
+            for k in range(len(grid[0])):
+                if grid[i][k].type == 'solid':
+                    print(i, k)
+                    for c in range(len(corners)):
+                        if corners[c][0] >= i*blockWidth and corners[c][0] <= (i+1)*blockWidth and corners[c][1] >= k*blockWidth and corners[c][1] <= (k+1)*blockWidth:
+                            cornerCollisions[c] = True
+        ret = {
+            'left': cornerCollisions[0] and cornerCollisions[2],
+            'right': cornerCollisions[1] and cornerCollisions[3],
+            'bottom': cornerCollisions[2] or cornerCollisions[3],
+            'top': cornerCollisions[0] or cornerCollisions[1]
+        }
+        print(ret)
+        return ret
 
-    def bindings(self, left, right, up): 
+    def bindings(self, left, right, up, grid, bw): 
+        collisions = self.collision(grid, bw)
         speedx = 0
         speedy = 0
         speed = 10
@@ -274,7 +260,7 @@ class CharacterPhysics():
         keys = pygame.key.get_pressed()
         if keys[left] and self.rectx >= left_border:
             speedx -= speed
-            print(self.rect.x)
+            print(self.rectx)
         if keys[right] and self.rectx <= right_border:
             speedx += speed
             print(self.rectx)
@@ -293,18 +279,25 @@ class CharacterPhysics():
         if  self.rect.bottom == 675:
             self.jumped = False
 
+        
         #gravity 
         self.vel_y += 1
         if self.vel_y > 15:
-            self.vel_y = 15
+            self.vel_y = 15    
 
         speedy += self.vel_y
-        self.rectx += speedx
-        self.recty += speedy
 
-        if self.rect.bottom > 675:
-            self.rect.bottom = 675
-            speedy = 0
+        if collisions['bottom']:
+            speedy = min(0, speedy)
+
+        if collisions['right']:
+            speedx = min(0, speedx)
+        
+        if collisions['left']:
+            speedx = max(0, speedx)
+
+        if collisions['top']:
+            speedy = max(0, speedy)
 
     def draw(self):
         screen.blit(self.rect)
@@ -339,13 +332,6 @@ def main():
     player2 = PlayerInstance("asdd", 1, characters['bob'])
     sim = Simulation(maps['smash'], player1, player2)
 
-    #player basic attack
-    bplayer1 = BasicAttack(30, False, 5, 10, False)
-    bplayer2 = BasicAttack(30, False, 5, 10, False)
-
-    #player skill attack
-    splayer1 = SkillAttack(5, 10, 20, 10, 40, False, 5)
-    splayer2 = SkillAttack(5, 10, 20, 10, 40, False, 5)
 
     fpsCount = 0
 
@@ -358,56 +344,6 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-            elif event.type == KEYDOWN:
-                #Basic Attack
-                if event.key == K_r and K_RIGHT:
-                    bplayer1.attackright()
-                    if CharacterPhysics.rect.x + 10 <= bplayer1.chareachx and bplayer1.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
-                        bplayer1.givedmg()
-                    else:
-                        pass
-                if event.key == K_r and K_LEFT:
-                    bplayer1.attackleft()
-                    if CharacterPhysics.rect.x <= bplayer1.chareachx and bplayer1.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
-                        bplayer1.givedmg()
-                    else:
-                        pass
-                    bplayer1.attacked()
-                    bplayer1.cooldown()
-
-                elif event.key == K_m and K_RIGHT:
-                    bplayer2.attackright()
-                    if CharacterPhysics.rect.x + 10 <= bplayer2.chareachx and bplayer2.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
-                        bplayer2.givedmg()
-                    else:
-                        pass
-                    bplayer2.attacked()
-                    bplayer2.cooldown()
-                elif event.key == K_m and K_LEFT:
-                    bplayer2.attackleft()
-                    if CharacterPhysics.rect.x <= bplayer2.chareachx and bplayer2.chareachy in range(CharacterPhysics.rect.y, CharacterPhysics.rect.y + 20):
-                        bplayer2.givedmg()
-                    else:
-                        pass
-                    bplayer2.attacked()
-                    bplayer2.cooldown()
-
-
-                #Abilties (Dash)
-                elif event.key == K_t and K_a:
-                    splayer1.dashleft()
-                elif event.key == K_t and K_d:
-                    splayer1.dashright()
-                elif event.key == K_PERIOD and K_LEFT:
-                    splayer2.dashleft()
-                elif event.key == K_PERIOD and K_RIGHT:
-                    splayer2.dashright()
-
-                #Abilties (Slam)
-                elif event.key == K_f:
-                    splayer1.slam()
-                elif event.key == K_l:
-                    splayer2.slam()
             
 
         sim.tick() # <-- DO ALL PHYSICS PROCESSING IN HERE
@@ -427,8 +363,12 @@ def main():
 
         characterPhysics1.draw()
         characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP)
+        skillAttack1.sbindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_PERIOD, pygame.K_COMMA)
+        basicAttack1.abindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_p)
 
         characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w)
+        skillAttack2.sbindings(pygame.K_a, pygame.K_d, pygame.K_r, pygame.K_t)
+        basicAttack2.abindings(pygame.K_a, pygame.K_d, pygame.K_g)
         characterPhysics2.draw()
         # --- Go ahead and update the screen with what we've drawn.
         pygame.display.flip()
