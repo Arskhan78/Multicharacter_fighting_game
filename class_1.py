@@ -64,7 +64,7 @@ class CharacterPhysics:  #http://codingwithruss.com/pygame/platformer/player.htm
     def animation_idle(self): 
         self.idle = True
     
-    def bindings(self, left, right, up, grid, bw): 
+    def bindings(self, left, right, up, grid, bw): #how to we display this in uml (go to main on line 155/157)
         collisions = self.collision(grid, bw)
         speedx = 0
         speedy = 0
