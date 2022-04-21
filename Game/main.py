@@ -79,16 +79,38 @@ class CharacterStats:
     """
     The base stats, attacks, etc of a character
     """
-    def __init__(self, name, hp, atk, speed, hitbox): #stamina
+    def __init__(self, name, hp, atk, speed, hitbox, maxatk): #stamina
         self.name: str = name
         self.hp: int = hp
         self.atk: int = atk
         self.speed: int = speed
         self.hitbox: int = hitbox
+        self.maxatk: int = maxatk
+        self.curatk: int = self.atk
         #self.stamina: int = stamina
 
+    def increasedmg(self, idmg: int) -> None:
+        try:
+            self.atk = min(self.atk + idmg, self.maxatk)
+        except:
+            print("That is not a number!\n")
+            self.atk = self.curatk
 
- 
+
+    def decreasedmg(self, ddmg: int) -> None:
+        self.curatk = self.atk
+        try:
+            self.atk = max(self.atk - ddmg, 0)
+        except:
+            print("That is not a number!\n")
+            self.atk = self.curatk
+
+    def changename(self, changed: str) -> None:
+        self.name = changed
+
+    def displaychanges(self):
+        return f"Name changed to: {self.name} and attack changed to: {self.atk}"
+
 class BasicAttack:
     """
     Represents a character's basic attack
@@ -101,7 +123,7 @@ class BasicAttack:
         self.cantatk: bool = cantatk
 
 
-
+    #attack bindings
     def abindings(self, left, right, attack, otherchar: CharacterInstance):
         keys = pygame.key.get_pressed()
         i = 0
@@ -332,7 +354,6 @@ def main():
     player2 = PlayerInstance("asdd", 1, characters['bob'])
     sim = Simulation(maps['smash'], player1, player2)
 
-
     fpsCount = 0
 
     blockWidth = min(size[0]/len(sim.grid[0]), size[1]/len(sim.grid))
@@ -370,6 +391,8 @@ def main():
         skillAttack2.sbindings(pygame.K_a, pygame.K_d, pygame.K_r, pygame.K_t)
         basicAttack2.abindings(pygame.K_a, pygame.K_d, pygame.K_g)
         characterPhysics2.draw()
+        CharacterStats
+        
         # --- Go ahead and update the screen with what we've drawn.
         pygame.display.flip()
         # --- Limit to 60 frames per second
