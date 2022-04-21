@@ -1,4 +1,6 @@
+from dis import pretty_flags
 import os
+from random import random
 from tkinter import Grid
 from numpy import block
 import pygame
@@ -6,7 +8,9 @@ import ui
 from typing import List, Tuple, Dict, Optional
 import json
 import math
-
+import random
+from class_1 import CharacterPhysics
+from animations_method import import_folder
 pygame.init()
 
 
@@ -16,7 +20,8 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("TEMPLATE")
 
 blockTypes = ["air", "solid"]
-
+Backround = pygame.image.load('NW0mK39.gif')
+map_backround = pygame.transform.scale(Backround, (1200, 900))
 class Simulation: 
     """
     A class for each game
@@ -88,96 +93,7 @@ class SkillAttack:
     def __init__(self):
         pass
 
-class CharacterPhysics():  #http://codingwithruss.com/pygame/platformer/player.html i got jumping code from here and tile collision for the map (modified)
-    """
-    Charecter movement and tile collision 
-    """
-    def __init__(self, x, y):
-        player_surf = pygame.image.load(f'player_stance1.png').convert_alpha()
-        self.image = pygame.transform.scale(player_surf, (50, 100))
-        self.rect = self.image.get_rect()
-        self.rect.x = x 
-        self.rect.y = y 
-        self.vel_y = 0 
-        self.jumped = False
 
-    def collision(self, grid, blockWidth):
-        corners = [[self.rect.top, self.rect.left], [self.rect.top, self.rect.right], [self.rect.bottom, self.rect.left], [self.rect.bottom, self.rect.right]]
-        cornerCollisions = [False, False, False, False]
-        for i in range(len(grid)):
-            for k in range(len(grid[0])):
-                if grid[i][k].type == 'solid':
-                    print(i, k)
-                    for c in range(len(corners)):
-                        if corners[c][0] >= i*blockWidth and corners[c][0] <= (i+1)*blockWidth and corners[c][1] >= k*blockWidth and corners[c][1] <= (k+1)*blockWidth:
-                            cornerCollisions[c] = True
-        ret = {
-            'left': cornerCollisions[0] and cornerCollisions[2],
-            'right': cornerCollisions[1] and cornerCollisions[3],
-            'bottom': cornerCollisions[2] or cornerCollisions[3],
-            'top': cornerCollisions[0] or cornerCollisions[1]
-        }
-        print(ret)
-        return ret
-    
-    def bindings(self, left, right, up, grid, bw): 
-        collisions = self.collision(grid, bw)
-        speedx = 0
-        speedy = 0
-        speed = 10
-        left_border = 0
-        right_border = 1160
-        keys = pygame.key.get_pressed()
-        if keys[left] and self.rect.x >= left_border:
-            speedx -= speed
-            print(self.rect.x)
-        if keys[right] and self.rect.x <= right_border:
-            speedx += speed
-            print(self.rect.x)
-        # jumping code starts here ---------------------------
-        if keys[up] and self.jumped == False:
-            self.vel_y = -25
-            self.jumped = True
-        # modified bit (i capped speed in air for both x directions)
-        if keys[left] and self.jumped == True:
-            speedx += 5
-        if keys[right] and self.jumped == True :
-            speedx -= 5
-        # checking if jumped
-        if  collisions['bottom']:
-            self.jumped = False
-       
-        #gravity 
-        self.vel_y += 1
-        if self.vel_y > 15:
-            self.vel_y = 15    
-
-        speedy += self.vel_y
-
-        if collisions['bottom']:
-            speedy = min(0, speedy)
-
-        if collisions['right']:
-            speedx = min(0, speedx)
-        
-        if collisions['left']:
-            speedx = max(0, speedx)
-
-        if collisions['top']:
-            speedy = max(0, speedy)
-
-        self.rect.x += speedx
-        self.rect.y += speedy
-
-        #collisions 
-        # for tile in sim.grid:
-        #     if tile[solid] 
-        #     pass
-
-    def draw(self):
-        screen.blit(self.image, self.rect)
-    
-    pass
 
 characterPhysics1 = CharacterPhysics(100,200)    
 characterPhysics2 = CharacterPhysics(600,200)    
@@ -218,24 +134,24 @@ def main():
 
     while True:
         screen.fill((255, 255, 255))
+        screen.blit(map_backround, (0,0)) 
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-
-      
-
-        # temp rendering, scuffed af
-        
+        # temp rendering, scuffed af       
         for i in range(len(sim.grid)):
             for k in range(len(sim.grid[0])):
                 if sim.grid[i][k].type == "air":
                     pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(blockWidth*k, blockWidth*i, blockWidth, blockWidth))
                 elif sim.grid[i][k].type == "solid":
                     pygame.draw.rect(screen, (153, 51, 0), pygame.Rect(blockWidth*k, blockWidth*i, blockWidth, blockWidth),2)
+
+              
      
         
         characterPhysics1.draw()
+        characterPhysics1.animations()
         characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, sim.grid, sim.blockWidth)
         characterPhysics2.draw()
         characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w, sim.grid, sim.blockWidth)
