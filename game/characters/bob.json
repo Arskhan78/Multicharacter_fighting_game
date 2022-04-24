@@ -3,6 +3,5 @@
     "hp": 69,
     "atk": 1,
     "speed": 69,
-    "hitbox": [10, 20],
-    "maxatk": 10
+    "hitbox": [10, 20]
 }

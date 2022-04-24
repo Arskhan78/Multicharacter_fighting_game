@@ -79,37 +79,70 @@ class CharacterStats:
     """
     The base stats, attacks, etc of a character
     """
-    def __init__(self, name, hp, atk, speed, hitbox, maxatk): #stamina
+    def __init__(self, name, hp, atk, speed, hitbox): #stamina
         self.name: str = name
         self.hp: int = hp
         self.atk: int = atk
         self.speed: int = speed
         self.hitbox: int = hitbox
-        self.maxatk: int = maxatk
-        self.curatk: int = self.atk
         #self.stamina: int = stamina
 
     def increasedmg(self, idmg: int) -> None:
+        curatk = self.atk
         try:
-            self.atk = min(self.atk + idmg, self.maxatk)
+            self.atk = min(self.atk + idmg, 10)
         except(TypeError):
             print("That is not a number!\n")
-            self.atk = self.curatk
+            self.atk = curatk
 
 
     def decreasedmg(self, ddmg: int) -> None:
-        self.curatk = self.atk
+        curatk = self.atk
         try:
             self.atk = max(self.atk - ddmg, 0)
         except(TypeError):
             print("That is not a number!\n")
-            self.atk = self.curatk
+            self.atk = curatk
 
     def changename(self, changed: str) -> None:
-        self.name = changed
+            self.name = changed
 
     def displaychanges(self):
-        return f"Name changed to: {self.name} and attack changed to: {self.atk}"
+        return f"Name changed to: {self.name}\nAttack changed to: {self.atk}"
+
+    def heal(self, healed: int) -> int:
+        """Increasing hp variable of an object.
+
+        Args:
+            healed: A number
+        
+        Returns:
+            The healed value inputed into the system.
+        """
+        self.hp = min(self.hp + healed, 100)
+        return healed
+
+    def buff(self, absorption: int) -> int:
+        """Buffs a character's hp over the usual limit.
+
+        Args:
+            absorption: A number
+
+        Returns:
+            The amount of hp buffed.
+        """
+        self.hp += absorption
+        if self.hp - 100 > 0:
+            return self.hp - 100
+        elif self.hp - 100 < 0:
+            return max(self.hp - 100, 0)
+    def displayhp(self) -> str:
+        """Displays the health of the current object.
+
+        Returns:
+            The amount of health a object current has.
+        """
+        return f"Current Hp: {self.hp}"
 
 class BasicAttack:
     """
@@ -235,7 +268,7 @@ class CharacterPhysics:
     """
     Charecter movement and tile collision 
     """
-    def init(self, x, y):
+    def __init__(self, x, y):
         player_surf = pygame.image.load(f'player_stance1.png').convert_alpha()
         self.image = pygame.transform.scale(player_surf, (50, 100))
         self.rect = self.image.get_rect()
@@ -313,9 +346,8 @@ class CharacterPhysics:
             speedy = max(0, speedy)
 
     def draw(self):
-        screen.blit(self.rect)
+        screen.blit(self.image, self.rect)
 
-    pass
 
 characterPhysics1 = CharacterPhysics(100,200)
 characterPhysics2 = CharacterPhysics(600,200)
@@ -374,11 +406,11 @@ def main():
         pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(sim.character2.currentX/10*blockWidth, sim.character2.currentY/10*blockWidth, sim.character2.character.hitbox[0]/10*blockWidth, sim.character2.character.hitbox[1]/10*blockWidth))
 
         characterPhysics1.draw()
-        characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP)
+        characterPhysics1.bindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, sim.grid, blockWidth)
         skillAttack1.sbindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_PERIOD, pygame.K_COMMA)
         basicAttack1.abindings(pygame.K_LEFT, pygame.K_RIGHT, pygame.K_p)
 
-        characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w)
+        characterPhysics2.bindings(pygame.K_a, pygame.K_d, pygame.K_w, sim.grid, blockWidth)
         skillAttack2.sbindings(pygame.K_a, pygame.K_d, pygame.K_r, pygame.K_t)
         basicAttack2.abindings(pygame.K_a, pygame.K_d, pygame.K_g)
         characterPhysics2.draw()
